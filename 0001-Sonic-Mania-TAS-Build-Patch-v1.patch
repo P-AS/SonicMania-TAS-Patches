@@ -1,0 +1,35 @@
+From 41ce5e7f1d1e741fb0634f595d2ede0742c858f0 Mon Sep 17 00:00:00 2001
+From: P-AS <43502756+P-AS@users.noreply.github.com>
+Date: Wed, 29 Nov 2023 00:36:55 -0500
+Subject: [PATCH] Sonic Mania TAS Build Patch v1
+
+---
+ SonicMania/Objects/Global/HUD.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/SonicMania/Objects/Global/HUD.c b/SonicMania/Objects/Global/HUD.c
+index 61126c50..6213857d 100644
+--- a/SonicMania/Objects/Global/HUD.c
++++ b/SonicMania/Objects/Global/HUD.c
+@@ -194,6 +194,18 @@ void HUD_Draw(void)
+             HUD_DrawNumbersBase10(&drawPos, player->rings, 0);
+     }
+ 
++    // Sonic Mania TAS Build
++    if (RSDK_GET_ENTITY(SLOT_PLAYER1, Player)->classID != DebugMode->classID) {
++	    // Draw Player YVel
++            drawPos.x = (ScreenInfo[SceneInfo->currentScreenID].size.x - 16) << 16;
++            drawPos.y = TO_FIXED(ScreenInfo->size.y - 12);
++            HUD_DrawNumbersBase10(&drawPos, abs(player->velocity.y >> 0x0C), 4);
++
++            // Draw Player XVel
++            drawPos.x -= 0x90000;
++            HUD_DrawNumbersBase10(&drawPos, abs(player->onGround ? (player->groundVel >> 0x0C) : (player->velocity.x >> 0x0C)), 4);
++	}
++
+     if (RSDK_GET_ENTITY(SLOT_PLAYER1, Player)->classID == DebugMode->classID) {
+         if (player->camera) {
+             // Draw Camera YPos
+-- 
+2.43.0
+

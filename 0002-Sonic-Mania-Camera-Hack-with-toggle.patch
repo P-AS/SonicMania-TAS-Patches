@@ -1,0 +1,232 @@
+From 49dec5d6913b874026b2cdb0243e83f681c4b646 Mon Sep 17 00:00:00 2001
+From: P-AS <43502756+P-AS@users.noreply.github.com>
+Date: Sun, 7 Jul 2024 18:37:24 -0400
+Subject: [PATCH] Sonic Mania Camera Hack with toggle
+
+---
+ SonicMania/Objects/Global/Camera.c | 187 +++++++++++++++++------------
+ 1 file changed, 109 insertions(+), 78 deletions(-)
+
+diff --git a/SonicMania/Objects/Global/Camera.c b/SonicMania/Objects/Global/Camera.c
+index 97ab0b49..10d7dc36 100644
+--- a/SonicMania/Objects/Global/Camera.c
++++ b/SonicMania/Objects/Global/Camera.c
+@@ -8,6 +8,7 @@
+ #include "Game.h"
+ 
+ ObjectCamera *Camera;
++int32 use_hack = 0;
+ 
+ void Camera_Update(void) {}
+ 
+@@ -323,46 +324,58 @@ void Camera_State_FollowXY(void)
+         Camera_HandleVBounds();
+ 
+         Entity *target = self->target;
+-        target->position.x += self->targetMoveVel.x;
+-
+-        if (target->position.x <= self->position.x + self->offset.x) {
+-            if (target->position.x < self->position.x - self->offset.x) {
+-                int32 pos = target->position.x + self->offset.x - self->position.x;
+-                if (pos < -Camera->centerBounds.x)
+-                    pos = -Camera->centerBounds.x;
+-                self->position.x += pos;
+-            }
+-            target->position.x -= self->targetMoveVel.x;
+-        }
+-        else {
+-            int32 pos = target->position.x - self->position.x - self->offset.x;
+-            if (pos > Camera->centerBounds.x)
+-                pos = Camera->centerBounds.x;
+-            self->position.x += pos;
+-
+-            target->position.x -= self->targetMoveVel.x;
+-        }
+-
+-        target->position.y += self->targetMoveVel.y;
+ 
+-        int32 adjust = target->position.y - self->adjustY;
+-        if (adjust <= self->position.y + self->offset.y) {
+-            if (adjust < self->position.y - self->offset.y) {
+-                int32 pos = target->position.y + self->offset.y - self->position.y - self->adjustY;
+-                if (pos < -Camera->centerBounds.y)
+-                    pos = -Camera->centerBounds.y;
+-                self->position.y += pos;
+-            }
+-
+-            target->position.y -= self->targetMoveVel.y;
+-        }
+-        else {
+-            int32 pos = adjust - self->position.y - self->offset.y;
+-            if (pos > Camera->centerBounds.y)
+-                pos = Camera->centerBounds.y;
+-            self->position.y += pos;
+-            target->position.y -= self->targetMoveVel.y;
+-        }
++	//toggle
++    	if (ControllerInfo[CONT_P1].keyY.press) {
++		use_hack ^= 1;
++		printf("use_hack = %d\n", use_hack);
++	}
++
++	if (use_hack) {
++        	self->position.x = target->position.x - self->offset.x;
++        	self->position.y = target->position.y - self->offset.y;
++	} else {
++        	target->position.x += self->targetMoveVel.x;
++
++        	if (target->position.x <= self->position.x + self->offset.x) {
++        	    if (target->position.x < self->position.x - self->offset.x) {
++        	        int32 pos = target->position.x + self->offset.x - self->position.x;
++        	        if (pos < -Camera->centerBounds.x)
++        	            pos = -Camera->centerBounds.x;
++        	        self->position.x += pos;
++        	    }
++        	    target->position.x -= self->targetMoveVel.x;
++        	}
++        	else {
++        	    int32 pos = target->position.x - self->position.x - self->offset.x;
++        	    if (pos > Camera->centerBounds.x)
++        	        pos = Camera->centerBounds.x;
++        	    self->position.x += pos;
++
++        	    target->position.x -= self->targetMoveVel.x;
++        	}
++
++        	target->position.y += self->targetMoveVel.y;
++
++        	int32 adjust = target->position.y - self->adjustY;
++        	if (adjust <= self->position.y + self->offset.y) {
++        	    if (adjust < self->position.y - self->offset.y) {
++        	        int32 pos = target->position.y + self->offset.y - self->position.y - self->adjustY;
++        	        if (pos < -Camera->centerBounds.y)
++        	            pos = -Camera->centerBounds.y;
++        	        self->position.y += pos;
++        	    }
++
++        	    target->position.y -= self->targetMoveVel.y;
++        	}
++        	else {
++        	    int32 pos = adjust - self->position.y - self->offset.y;
++        	    if (pos > Camera->centerBounds.y)
++        	        pos = Camera->centerBounds.y;
++        	    self->position.y += pos;
++        	    target->position.y -= self->targetMoveVel.y;
++        	}
++	}
+     }
+ }
+ void Camera_State_FollowX(void)
+@@ -372,25 +385,34 @@ void Camera_State_FollowX(void)
+     if (self->target) {
+         Camera_HandleHBounds();
+ 
+-        Entity *target = self->target;
+-        target->position.x += self->targetMoveVel.x;
+-
+-        if (target->position.x <= self->position.x + self->offset.x) {
+-            if (target->position.x < self->position.x - self->offset.x) {
+-                int32 pos = target->position.x + self->offset.x - self->position.x;
+-                if (pos < -Camera->centerBounds.x)
+-                    pos = -Camera->centerBounds.x;
+-                self->position.x = self->position.x + pos;
+-            }
+-            target->position.x -= self->targetMoveVel.x;
+-        }
+-        else {
+-            int32 pos = target->position.x - self->position.x - self->offset.x;
+-            if (pos > Camera->centerBounds.x)
+-                pos = Camera->centerBounds.x;
+-            self->position.x = self->position.x + pos;
+-            target->position.x -= self->targetMoveVel.x;
+-        }
++    	if (ControllerInfo[CONT_P1].keyY.press) {
++		use_hack ^= 1;
++	}
++
++	if (use_hack) {
++		// Do the other function
++		Camera_State_FollowXY();
++	} else {
++        	Entity *target = self->target;
++        	target->position.x += self->targetMoveVel.x;
++
++        	if (target->position.x <= self->position.x + self->offset.x) {
++        	    if (target->position.x < self->position.x - self->offset.x) {
++        	        int32 pos = target->position.x + self->offset.x - self->position.x;
++        	        if (pos < -Camera->centerBounds.x)
++        	            pos = -Camera->centerBounds.x;
++        	        self->position.x = self->position.x + pos;
++        	    }
++        	    target->position.x -= self->targetMoveVel.x;
++        	}
++        	else {
++        	    int32 pos = target->position.x - self->position.x - self->offset.x;
++        	    if (pos > Camera->centerBounds.x)
++        	        pos = Camera->centerBounds.x;
++        	    self->position.x = self->position.x + pos;
++        	    target->position.x -= self->targetMoveVel.x;
++        	}
++	}
+     }
+ }
+ void Camera_State_FollowY(void)
+@@ -400,26 +422,35 @@ void Camera_State_FollowY(void)
+     if (self->target) {
+         Camera_HandleVBounds();
+ 
+-        Entity *target = self->target;
+-        target->position.y += self->targetMoveVel.y;
+-
+-        int32 adjust = target->position.y - self->adjustY;
+-        if (adjust <= self->position.y + self->offset.y) {
+-            if (adjust < self->position.y - self->offset.y) {
+-                int32 pos = target->position.y + self->offset.y - self->position.y - self->adjustY;
+-                if (pos < -Camera->centerBounds.y)
+-                    pos = -Camera->centerBounds.y;
+-                self->position.y = self->position.y + pos;
+-            }
+-            target->position.y -= self->targetMoveVel.y;
+-        }
+-        else {
+-            int32 pos = adjust - self->position.y - self->offset.y;
+-            if (pos > Camera->centerBounds.y)
+-                pos = Camera->centerBounds.y;
+-            self->position.y = self->position.y + pos;
+-            target->position.y -= self->targetMoveVel.y;
+-        }
++    	if (ControllerInfo[CONT_P1].keyY.press) {
++		use_hack ^= 1;
++	}
++
++	if (use_hack) {
++		// Do the other function
++		Camera_State_FollowXY();
++	} else {
++		Entity *target = self->target;
++	        target->position.y += self->targetMoveVel.y;
++
++	        int32 adjust = target->position.y - self->adjustY;
++	        if (adjust <= self->position.y + self->offset.y) {
++	            if (adjust < self->position.y - self->offset.y) {
++	                int32 pos = target->position.y + self->offset.y - self->position.y - self->adjustY;
++	                if (pos < -Camera->centerBounds.y)
++	                    pos = -Camera->centerBounds.y;
++	                self->position.y = self->position.y + pos;
++	            }
++	            target->position.y -= self->targetMoveVel.y;
++	        }
++	        else {
++	            int32 pos = adjust - self->position.y - self->offset.y;
++	            if (pos > Camera->centerBounds.y)
++	                pos = Camera->centerBounds.y;
++	            self->position.y = self->position.y + pos;
++	            target->position.y -= self->targetMoveVel.y;
++	        }
++	}
+     }
+ }
+ void Camera_State_HandleLerp(void)
+-- 
+2.45.2
+
