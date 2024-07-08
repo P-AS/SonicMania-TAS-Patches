@@ -14,12 +14,12 @@ index 61126c50..6213857d 100644
 @@ -194,6 +194,18 @@ void HUD_Draw(void)
              HUD_DrawNumbersBase10(&drawPos, player->rings, 0);
      }
- 
+
 +    // Sonic Mania TAS Build
 +    if (RSDK_GET_ENTITY(SLOT_PLAYER1, Player)->classID != DebugMode->classID) {
 +	    // Draw Player YVel
-+            drawPos.x = (ScreenInfo[SceneInfo->currentScreenID].size.x - 16) << 16;
-+            drawPos.y = TO_FIXED(ScreenInfo->size.y - 12);
++            drawPos.x = TO_FIXED(85);
++            drawPos.y = TO_FIXED(74);
 +            HUD_DrawNumbersBase10(&drawPos, abs(player->velocity.y >> 0x0C), 4);
 +
 +            // Draw Player XVel
@@ -30,6 +30,5 @@ index 61126c50..6213857d 100644
      if (RSDK_GET_ENTITY(SLOT_PLAYER1, Player)->classID == DebugMode->classID) {
          if (player->camera) {
              // Draw Camera YPos
--- 
+--
 2.43.0
-
